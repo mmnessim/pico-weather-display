@@ -1,5 +1,5 @@
 # Pico Weather Display
-This is a simple project to display the current weather with a Pico 2 W and an E-Ink display. For this project I used the Waveshare [EPD2in66B](https://www.waveshare.com/2.66inch-e-paper-b.htm) display and Waveshare's provided C libraries and drivers.
+This is a simple project to display the current weather with a Pico 2 W and an E-Ink display. For this project I used the Waveshare [EPD2in9B](https://www.waveshare.com/wiki/Pico-ePaper-2.9-B) display and Waveshare's provided C libraries and drivers.
 
 
 ## TODOS
@@ -17,8 +17,8 @@ First off, you'll need a Pico 2 W (I have not tested with a Pico W, but you can 
 
 Next, clone this repo on your computer, cd into the directory, and create a build directory.
 ```sh
-git clone [WHATEVER THE URL WILL BE]
-cd [DIRECTORY]
+git clone https://github.com/mmnessim/pico-weather-display.git
+cd pico-weather-display
 mkdir build
 ```
 
@@ -32,7 +32,7 @@ Finally build the project.
 cmake --build .
 ```
 
-There should now be many files in your build directory. Plug in your Pico with the bootsel button pressed and drag the [FILENAME].uf2 file over to your Pico. The Pico should restart and immediately begin running the program. If using the LCD1602 display, make sure you use pins 4 and 5 respectively for SDA and SCL.
+There should now be many files in your build directory. Plug in your Pico with the bootsel button pressed and drag the `weather-display.uf2` file over to your Pico. The Pico should restart and immediately begin running the program. If using the LCD1602 display, make sure you use pins 4 and 5 respectively for SDA and SCL.
 
 ## Getting started with the backend
 Disclaimer: The backend can really be whatever you want it to be, so long as the response it sends to the Pico is formatted correctly. If you prefer to use Python or whatever other language, just be sure to format responses correctly
