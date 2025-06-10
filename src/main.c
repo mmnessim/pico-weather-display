@@ -82,12 +82,13 @@ int main() {
 
     char ssid[64] = {0};
     char password[64] = {0};
+    char zipcode[64] = {0};
     struct message msg = {0};
 
     // Try to read the SSID and password from flash memory
     // If it fails, it will enable AP mode and start the DHCP server
     // This allows the user to connect to the access point and enter credentials
-    if (!read_from_flash(ssid, password)) {
+    if (!read_from_flash(ssid, password, zipcode)) {
         printf("Failed to read credentials from flash\n");
 
         cyw43_arch_enable_ap_mode("WeatherDisplay_AP", "weather1234", CYW43_AUTH_WPA2_MIXED_PSK);

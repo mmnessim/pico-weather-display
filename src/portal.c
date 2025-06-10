@@ -68,10 +68,12 @@ static err_t recv_callback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_
                  "<h1>Pico Weather Display</h1>"
                  "<p>Enter your home network's wi-fi credentials below to connect the device to your network:</p>"
                  "<form method='POST' action='/'>"
-                 "<label for='ssid'>SSID:</label>"
-                 "<input type='text' id='ssid' name='ssid'><br>"
+                    "<label for='ssid'>SSID:</label>"
+                    "<input type='text' id='ssid' name='ssid'><br>"
                     "<label for='password'>Password:</label>"
                     "<input type='password' id='password' name='password'><br>"
+                    "<label for='zipcode'>Zip Code:</label>"
+                    "<input type='text' id='zipcode' name='zipcode'><br>"
                     "<input type='hidden' name='action' value='submit'>"
                     "<input type='submit' value='Submit'>"
                 "</form>"
@@ -81,9 +83,11 @@ static err_t recv_callback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_
     if (strncmp(req, "POST", 4) == 0) {
         char* ssid_start = strstr(req, "ssid=");
         char* password_start = strstr(req, "password=");
+        char* zipcode_start = strstr(req, "zipcode=");
 
         char decoded_ssid[64] = {0};
         char decoded_password[64] = {0};
+        char decoded_zipcode[64] = {0};
 
         if (ssid_start && password_start) {
             ssid_start += 5; // Move past "ssid="
@@ -91,18 +95,22 @@ static err_t recv_callback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_
 
             char *ssid_end = strchr(ssid_start, '&');
             char *password_end = strchr(password_start, '&');
+            char *zipcode_end = strchr(zipcode_start, '&');
 
             if (ssid_start) ssid_end[0] = '\0'; // Null-terminate SSID
             if (password_start) password_end[0] = '\0'; // Null-terminate Password
+            if (zipcode_start) zipcode_end[0] = '\0';
 
             url_decode(decoded_ssid, ssid_start);
             url_decode(decoded_password, password_start);
+            url_decode(decoded_zipcode, zipcode_start);
 
             printf("Received SSID: %s\n", decoded_ssid);
             printf("Received Password: %s\n", decoded_password);
+            printf("Received Zipcode: %s\n", decoded_zipcode);
 
             // TODO: Save the SSID and password to flash memory
-            write_to_flash(decoded_ssid, decoded_password);
+            write_to_flash(decoded_ssid, decoded_password, decoded_zipcode);
             // After saving, we can reboot the device to connect to the new Wi-Fi network
             sleep_ms(1000); // Give some time for the write to complete
             watchdog_reboot(0, 0, 0);

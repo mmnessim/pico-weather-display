@@ -12,7 +12,7 @@
 #define FLASH_HEADER "FLASH_OK:"
 #define FLASH_HEADER_LEN 9
 
-void write_to_flash(const char *ssid, const char *password);
-bool read_from_flash(char *ssid, char *password);
+void write_to_flash(const char *ssid, const char *password, const char *zipcode);
+bool read_from_flash(char *ssid, char *password, char *zipcode);
 
 #endif
