@@ -8,7 +8,7 @@ void write_to_flash(const char *ssid, const char *password) {
 
     uint32_t ints = save_and_disable_interrupts();;
     flash_range_erase(FLASH_TARGET_OFFSET, 4096);
-    flash_range_program(FLASH_TARGET_OFFSET, buffer, 256);
+    flash_range_program(FLASH_TARGET_OFFSET, buffer, 63);
     restore_interrupts(ints);
 }
 
@@ -19,6 +19,6 @@ bool read_from_flash(char *ssid, char *password) {
 
     const char *data = (const char *)(flash_target + FLASH_HEADER_LEN);
     // Read up to newline for SSID, then up to newline for password, allowing spaces
-    sscanf(data, "ssid=%255[^&]&password=%255s", ssid, password);
+    sscanf(data, "ssid=%63[^&]&password=%63s", ssid, password);
     return true;
 }
