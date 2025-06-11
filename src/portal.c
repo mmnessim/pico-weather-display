@@ -109,7 +109,6 @@ static err_t recv_callback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_
             printf("Received Password: %s\n", decoded_password);
             printf("Received Zipcode: %s\n", decoded_zipcode);
 
-            // TODO: Save the SSID and password to flash memory
             write_to_flash(decoded_ssid, decoded_password, decoded_zipcode);
             // After saving, we can reboot the device to connect to the new Wi-Fi network
             sleep_ms(1000); // Give some time for the write to complete

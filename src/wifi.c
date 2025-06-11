@@ -63,12 +63,14 @@ static err_t recv_callback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_
 
         printf("CURRENT: %.1f HIGH: %.1f LOW: %.1f PRECIP: %.1f WEATHER: %s\n", cur, high, low, precip, weather);
 
-        char string[64], second_line[64], precip_line[64];
-        snprintf(precip_line, sizeof(precip_line), "Precip: %.1f%%", precip);
-        snprintf(string, sizeof(string), "C:%.1fF H:%.1fF", cur, high);
-        snprintf(second_line, sizeof(second_line), "%s", weather);
+        char first_line[64], second_line[64], third_line[64], fourth_line[64], fifth_line[64];
 
-        update_message(msg, "Today's Weather", string, "Condition:", second_line, precip_line);
+        snprintf(first_line, sizeof(first_line), "Current: %.1fF", cur);
+        snprintf(second_line, sizeof(second_line), "H: %.1fF L: %.1fF", high, low);
+        snprintf(third_line, sizeof(third_line), "%s", weather);
+        snprintf(fifth_line, sizeof(fifth_line), "Precip: %.1f%%", precip);
+
+        update_message(msg, first_line, second_line, third_line, "", fifth_line);
         //lcd_clear();
         //lcd_set_cursor(0, 0);
         //lcd_print(msg->first_line);
@@ -83,7 +85,7 @@ static err_t recv_callback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_
 
 
 static err_t conn_callback(void *arg, struct tcp_pcb *tpcb, err_t err) {
-    const char *get_req = "POST / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n";
+    const char *get_req = "GET / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n";
     tcp_write(tpcb, get_req, strlen(get_req), TCP_WRITE_FLAG_COPY);
     tcp_arg(tpcb, arg); // Set the argument to be passed to recv_callback
     tcp_recv(tpcb, recv_callback);
