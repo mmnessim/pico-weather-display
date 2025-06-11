@@ -15,5 +15,6 @@ static err_t conn_callback(void *arg,
     struct tcp_pcb *tpcb, err_t err);
 void get_request(struct message *msg);
 int setup(const char *ssid, const char *pass);
+void found_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
 
 #endif

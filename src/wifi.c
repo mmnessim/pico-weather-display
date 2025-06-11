@@ -1,5 +1,7 @@
 #include "wifi.h"
 #include "message.h"
+#include <lwip/dns.h>
+#include <lwip/err.h>
 #include <lwip/tcp.h>
 
 int setup(const char *ssid, const char *pass) {
@@ -92,6 +94,7 @@ static err_t conn_callback(void *arg, struct tcp_pcb *tpcb, err_t err) {
     return ERR_OK;
 }
 
+
 void get_request(struct message *msg) {
     ip_addr_t server_ip;
     struct tcp_pcb *pcb = tcp_new();
@@ -100,4 +103,32 @@ void get_request(struct message *msg) {
 
     tcp_arg(pcb, msg);
     tcp_connect(pcb, &server_ip, 8080, conn_callback);
+}
+
+// This doesn't work yet because TLS is not integrated
+// Maybe I need mbedTLS
+//void get_request(struct message *msg) {
+//    const char *domain = "weather.mnessim.com";
+//    ip_addr_t resolved_ip;
+//
+//    err_t err = dns_gethostbyname(domain, &resolved_ip, found_callback, msg);
+//
+//    if (err == ERR_OK) {
+//        struct tcp_pcb *pcb = tcp_new();
+//        tcp_arg(pcb, msg);
+//        tcp_connect(pcb, &resolved_ip, 80, conn_callback);
+//    } else if (err == ERR_INPROGRESS) {
+//        printf("DNS resolution in progress for %s\n", domain);
+//    } else {
+//        printf("Could not resolve DNS\n");
+//    }
+//}
+//
+void found_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg) {
+    if (ipaddr != NULL) {
+        struct message *msg = (struct message *)callback_arg;
+        struct tcp_pcb *pcb = tcp_new();
+        tcp_arg(pcb, msg);
+        tcp_connect(pcb, ipaddr, 80, conn_callback);
+    }
 }
