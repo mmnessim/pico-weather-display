@@ -3,11 +3,14 @@ This is a simple project to display the current weather with a Pico 2 W and an E
 
 
 ## TODOS
-This is very much a work in progres, so there are many things to do
+This is very much a work in progres, so there are many things to do.
 
-* Display more weather information
-* Refine backend server and publish to github
-* Use some kind of GPS module to dynamically get lat and long
+* Create a web portal to reset wifi credentials, zip code, or do other management
+* Refine backend server
+* Send zip code to backend server
+* Incorporate mbedTLS to make https requests and publicly host backend server
+* Revisit LCD1602 implementation and make sure it's up to date
+* Take and upload pictures
 
 ## Backend
 The Pico makes requests to a backend server written in Go, which in turn fetches and returns weather data from the [OpenWeather API](https://openweathermap.org/api). It is an extremely minimal server at this point with just one endpoint.
@@ -38,21 +41,16 @@ There should now be many files in your build directory. Plug in your Pico with t
 Disclaimer: The backend can really be whatever you want it to be, so long as the response it sends to the Pico is formatted correctly. If you prefer to use Python or whatever other language, just be sure to format responses correctly
 TODO put response format
 
-Make sure you have Go installed on your backend device of choice. Clone the [backend repo](SOME URL).
+Make sure you have Go installed on your backend device of choice. Clone the [backend repo](https://github.com/mmnessim/pico-weather-display-backend). Visit the repo for more detailed instructions (in progress).
 ```sh
-git clone [SOMEURL]
-cd [SOMEDIR]
+git clone https://github.com/mmnessim/pico-weather-display-backend.git
+cd pico-weather-display-backend
 ```
-You will need an API key from OpenWeather, which you can make by creating a free account and following their instructions.
+You will need an API key from OpenWeatherMap, which you can make by creating a free account and following their instructions.
 
 Create a .env file in the root directory of the Go server and enter your api key.
 ```
 API_KEY=[YOUR API KEY]
-```
-OpenWeather uses latitude and longitude for determining locaiton, so look up your desired latitude and longitude and enter them in your .env as well.
-```
-LAT=[YOUR LAT]
-LONG=[YOUR LONG]
 ```
 
 Finally, run the server.
