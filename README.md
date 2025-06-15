@@ -1,22 +1,24 @@
 # Pico Weather Display
-This is a simple project to display the current weather with a Pico 2 W and an E-Ink display. For this project I used the Waveshare [EPD2in9B](https://www.waveshare.com/wiki/Pico-ePaper-2.9-B) display and Waveshare's provided C libraries and drivers.
+This is a simple project to display the current weather with a Pico 2 W and an E-Ink display. For this project I used the Waveshare [EPD2in9B](https://www.waveshare.com/wiki/Pico-ePaper-2.9-B) display and Waveshare's provided C libraries and drivers. It's also a work in progress! Expect bugs, naive implementations, and all sorts of other problems as I work my way through.
 
 
 ## TODOS
 This is very much a work in progres, so there are many things to do.
 
 * Create a web portal to reset wifi credentials, zip code, or do other management
+* Parse headers in http response more effectively
 * Refine backend server
-* Send zip code to backend server
+* ~~Send zip code to backend server~~
 * Incorporate mbedTLS to make https requests and publicly host backend server
 * Revisit LCD1602 implementation and make sure it's up to date
-* Take and upload pictures
+* Take and upload pictures for README
+* Maybe combine frontend and backend into one repo
 
 ## Backend
 The Pico makes requests to a backend server written in Go, which in turn fetches and returns weather data from the [OpenWeather API](https://openweathermap.org/api). It is an extremely minimal server at this point with just one endpoint.
 
 ## Getting Started
-First off, you'll need a Pico 2 W (I have not tested with a Pico W, but you can give it a try!) and either an EPD2in9B display or an LCD1602 display. I wrote the LCD1602 driver myself, so no guarantees it will work with a different model
+First off, you'll need a Pico 2 W (I have not tested with a Pico W, but you can give it a try!) and either an EPD2in9B display or an LCD1602 display. If you haven't already, follow Raspberry Pi's [instructions](https://www.raspberrypi.com/documentation/microcontrollers/c_sdk.html) for installing the Pico C/C++ SDK or official VSCode extension. *If you're using the VSCode extension, you're probably best off following the official instructions to import and build the project, so feel free to disregard the rest of these instructions.*
 
 Next, clone this repo on your computer, cd into the directory, and create a build directory.
 ```sh
@@ -38,8 +40,8 @@ cmake --build .
 There should now be many files in your build directory. Plug in your Pico with the bootsel button pressed and drag the `weather-display.uf2` file over to your Pico. The Pico should restart and immediately begin running the program. If using the LCD1602 display, make sure you use pins 4 and 5 respectively for SDA and SCL.
 
 ## Getting started with the backend
-Disclaimer: The backend can really be whatever you want it to be, so long as the response it sends to the Pico is formatted correctly. If you prefer to use Python or whatever other language, just be sure to format responses correctly
-TODO put response format
+*Disclaimer: The backend can really be whatever you want it to be, so long as the response it sends to the Pico is formatted correctly. If you prefer to use Python or whatever other language, just be sure to format responses correctly. The Pico expects:* `"cur={current temp} high={high} low={low} weather={current condition} precip={precip}`. *There's also a chance that the headers on a custom backend might break how I parse the response.*
+
 
 Make sure you have Go installed on your backend device of choice. Clone the [backend repo](https://github.com/mmnessim/pico-weather-display-backend). Visit the repo for more detailed instructions (in progress).
 ```sh
