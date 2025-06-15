@@ -36,7 +36,8 @@
 #include "wifi.h"
 #include "message.h"
 
-static int refresh_num = 10;
+//static int refresh_num = 10;
+char zipcode[64] = {0};
 
 // ********************************************************************************
 // Define the display type you want to use and set the other to 0
@@ -53,19 +54,24 @@ int display_epd(struct message *msg, UBYTE *BlackImage, UBYTE *RYImage) {
     printf("Refreshing EPD\n");
 
     EPD_2IN9B_V4_Init_Fast();
-    //Select Image
+
+    // Clear image first
     Paint_SelectImage(RYImage);
     Paint_Clear(WHITE);
     Paint_SelectImage(BlackImage);
     Paint_Clear(WHITE);
+
+    // Fill BlackImage buffer with message contents
     Paint_DrawString_EN(10, 5, msg->first_line, &Font20, WHITE, BLACK);
     Paint_DrawString_EN(10, 30, msg->second_line, &Font20, WHITE, BLACK);
     Paint_DrawString_EN(10, 55, msg->third_line, &Font20, WHITE, BLACK);
     Paint_DrawString_EN(10, 80, msg->fourth_line, &Font20, WHITE, BLACK);
     Paint_DrawString_EN(10, 105, msg->fifth_line, &Font20, WHITE, BLACK);
 
+    // Display message
     EPD_2IN9B_V4_Display(BlackImage, RYImage);
 
+    // Sleep until next update
     EPD_2IN9B_V4_Sleep();
 
     return 0;
@@ -82,7 +88,6 @@ int main() {
 
     char ssid[64] = {0};
     char password[64] = {0};
-    char zipcode[64] = {0};
     struct message msg = {0};
 
     // Try to read the SSID and password from flash memory
@@ -97,9 +102,9 @@ int main() {
         ip_addr_t ip, nm, gw;
 
         // Set the IP address for the DHCP server
-        IP4_ADDR(&ip, 192, 168, 4, 1); // Example IP address for the access point
-        IP4_ADDR(&nm, 255, 255, 255, 0); // Example subnet mask
-        IP4_ADDR(&gw, 192, 168, 4, 1); // Example gateway
+        IP4_ADDR(&ip, 192, 168, 4, 1);
+        IP4_ADDR(&nm, 255, 255, 255, 0);
+        IP4_ADDR(&gw, 192, 168, 4, 1);
         dhcp_server_init(&dhcp_server, &ip, &nm);
 
         dns_server_t dns_server;
@@ -115,7 +120,7 @@ int main() {
         EPD_2IN9B_V4_Clear();
 
         //Create a new image cache named IMAGE_BW and fill it with white
-        UBYTE *BlackImage, *RYImage; // Red or Yellow
+        UBYTE *BlackImage, *RYImage;
         UWORD Imagesize = ((EPD_2IN9B_V4_WIDTH % 8 == 0)? (EPD_2IN9B_V4_WIDTH / 8 ): (EPD_2IN9B_V4_WIDTH / 8 + 1)) * EPD_2IN9B_V4_HEIGHT;
         if((BlackImage = (UBYTE *)malloc(Imagesize)) == NULL) {
             printf("Failed to apply for black memory...\r\n");
@@ -139,12 +144,14 @@ int main() {
     }
 
     int rc = setup(ssid, password);
+    // There's actually no way rc will equal 1
+    // TODO investigate why I had this here
     if (rc == 1 || rc == 2) {
         #if LCD
         lcd_clear();
         lcd_print("Conn error");
         #endif
-        // Timeout after one minute, reset credentials, and reboot
+        // Timeout after two minute, reset credentials, and reboot
         uint32_t ints = save_and_disable_interrupts();
         flash_range_erase(FLASH_TARGET_OFFSET, 4096);
         restore_interrupts(ints);
@@ -155,8 +162,7 @@ int main() {
 
     get_request(&msg);
 
-    // EPD Initialization stuff
-
+    // EPD Initialization
     #if EPD
     DEV_Module_Init();
 
@@ -181,14 +187,16 @@ int main() {
     display_epd(&msg, BlackImage, RYImage);
     sleep_ms(1000 * 60 * 10); // Wait for 10 minutes before the first update
     #elif LCD
+    // LCD init and set display
     lcd_init();
     lcd_clear();
     lcd_set_cursor(0, 0);
 
+    // LCD only has two lines, so only the first two lines of the message can be displayed
     get_request(&msg);
-    lcd_print(msg.second_line);
+    lcd_print(msg.first_line);
     lcd_set_cursor(1, 0);
-    lcd_print(msg.fourth_line);
+    lcd_print(msg.second_line);
     #endif
 
     while (true) {
@@ -199,18 +207,26 @@ int main() {
 
         #if EPD
 
-        DEV_Delay_ms(500); // Wait for the request to complete
+        // Wait for request to finish
+        DEV_Delay_ms(500);
 
         display_epd(&msg, BlackImage, RYImage);
 
-        DEV_Delay_ms(1000 * 60 * 10); // Repeat every 10 minutes
+        // Wait 10 minutes, then repeat
+        DEV_Delay_ms(1000 * 60 * 10);
 
         #elif LCD
+        // Wait for request to finish
+        sleep_ms(500);
+
         lcd_clear();
         lcd_set_cursor(0, 0);
-        lcd_print(msg.second_line);
+        lcd_print(msg.first_line);
         lcd_set_cursor(1, 0);
-        lcd_print(msg.fourth_line);
+        lcd_print(msg.second_line);
+
+        // Because the LCD refreshes and updates so much faster than EPD, wait only one minute and update
+        sleep_ms(1000 * 60 * 1);
         #endif
 
     }

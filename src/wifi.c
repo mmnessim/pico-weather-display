@@ -4,6 +4,8 @@
 #include <lwip/err.h>
 #include <lwip/tcp.h>
 
+extern char zipcode[64];
+
 int setup(const char *ssid, const char *pass) {
     cyw43_arch_enable_sta_mode();
     if (cyw43_arch_wifi_connect_timeout_ms(ssid, pass, CYW43_AUTH_WPA2_MIXED_PSK, 1000 * 60 *2)) {
@@ -87,9 +89,12 @@ static err_t recv_callback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_
 
 
 static err_t conn_callback(void *arg, struct tcp_pcb *tpcb, err_t err) {
-    const char *get_req = "GET / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n";
+    char get_req[1048] = {0};
+    // Query encode the zipcode into the request for the backend
+    snprintf(get_req, sizeof(get_req), "GET /?zipcode=%s HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n", zipcode);
+
     tcp_write(tpcb, get_req, strlen(get_req), TCP_WRITE_FLAG_COPY);
-    tcp_arg(tpcb, arg); // Set the argument to be passed to recv_callback
+    tcp_arg(tpcb, arg);
     tcp_recv(tpcb, recv_callback);
     return ERR_OK;
 }
