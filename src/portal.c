@@ -41,8 +41,6 @@ static err_t accept_callback(void *arg, struct tcp_pcb *newpcb, err_t err) {
 
 // This is where the action is in the TCP server.
 // If the method is POST, it will parse the form data
-// TODO : Save the SSID and password to flash memory
-// Otherwise, it will serve the HTML form
 static err_t recv_callback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err) {
     if (!p) {
         tcp_close(tpcb);
@@ -92,6 +90,7 @@ static err_t recv_callback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_
         if (ssid_start && password_start) {
             ssid_start += 5; // Move past "ssid="
             password_start += 9; // Move past "password="
+            zipcode_start += 8; // Move past "zipcode="
 
             char *ssid_end = strchr(ssid_start, '&');
             char *password_end = strchr(password_start, '&');
