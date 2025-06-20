@@ -11,7 +11,7 @@ This is very much a work in progres, so there are many things to do.
 * ~~Send zip code to backend server~~
 * Incorporate mbedTLS to make https requests and publicly host backend server
 * Revisit LCD1602 implementation and make sure it's up to date
-* Take and upload pictures for README
+* ~~Take and upload pictures for README~~
 * Maybe combine frontend and backend into one repo
 
 ## Backend
@@ -39,8 +39,28 @@ cmake --build .
 
 There should now be many files in your build directory. Plug in your Pico with the bootsel button pressed and drag the `weather-display.uf2` file over to your Pico. The Pico should restart and immediately begin running the program. If using the LCD1602 display, make sure you use pins 4 and 5 respectively for SDA and SCL.
 
+### EPD 
+Once the Pico boots up, the screen will flash a few times and should display this message: 
+![connect](https://github.com/user-attachments/assets/ac3359fb-4b54-4195-b964-67901a6ed1c2)
+
+Connect to the WeatherDisplay_AP network to view the captive portal where you will enter your wifi credentials and zip code.
+![portal](https://github.com/user-attachments/assets/4ba3343a-6f11-40ac-a8da-88ef9508d0d9)
+
+When you hit submit, the Pico saves this information to flash and restarts. It should now connect to your wifi network and begin querying the backend every 10 minutes. Output looks like this
+![weather](https://github.com/user-attachments/assets/b4bfc086-04a3-4e9d-b7b8-508d8aec7a7e)
+
+### Troubleshooting 
+I often find that I have to enter my information in the captive portal twice before the Pico correctly connects to wifi. I have not tested this extensively, but if your project doesn't connect, try just entering it again. 
+After power cycling the Pico, I also sometimes find that it boots in captive portal mode again.
+If you need to change the wifi information, currently there are only two ways
+* The connection timeout is set to two minutes, after which, it will clear flash and boot in captive portal mode, allowing you to enter new credentials
+* Reflash the device
+
+One TODO item is to create a web console to manage the zipcode and wifi information, but it may take a while!
+
+
 ## Getting started with the backend
-*Disclaimer: The backend can really be whatever you want it to be, so long as the response it sends to the Pico is formatted correctly. If you prefer to use Python or whatever other language, just be sure to format responses correctly. The Pico expects:* `"cur={current temp} high={high} low={low} weather={current condition} precip={precip}`. *There's also a chance that the headers on a custom backend might break how I parse the response.*
+*Disclaimer: The backend can really be whatever you want it to be, so long as the response it sends to the Pico is formatted correctly. If you prefer to use Python or whatever other language, just be sure to format responses correctly. The Pico expects:* `"cur={current temp} high={high} low={low} weather={current condition} precip={precip}"`. *There's also a chance that the headers on a custom backend might break how I parse the response.*
 
 
 Make sure you have Go installed on your backend device of choice. Clone the [backend repo](https://github.com/mmnessim/pico-weather-display-backend). Visit the repo for more detailed instructions (in progress).
@@ -59,3 +79,4 @@ Finally, run the server.
 ```sh
 go run .
 ```
+
